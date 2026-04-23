@@ -23,7 +23,7 @@ export class SessionExpiredError extends Error {
 }
 
 export class ApiError extends Error {
-  constructor(message, status)    super(message);
+constructor(message, status) {super(message);
     this.status = status;
     this.name   = "ApiError";
   }
