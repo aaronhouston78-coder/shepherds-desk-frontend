@@ -2,7 +2,8 @@
 // Example: https://api.shepherdsdesk.app
 // Do NOT include /api or a trailing slash.
 // Leave unset for local development — Vite proxies /api/* automatically.
-const ORIGIN = import.meta.env.VITE_API_ORIGIN ?? "";
+const ORIGIN = "https://shepherds-desk-backend-production.up.railway.app";
+
 
 function getToken() {
   return localStorage.getItem("sd_token");
@@ -22,8 +23,7 @@ export class SessionExpiredError extends Error {
 }
 
 export class ApiError extends Error {
-  constructor(message, status) {
-    super(message);
+  constructor(message, status)    super(message);
     this.status = status;
     this.name   = "ApiError";
   }
