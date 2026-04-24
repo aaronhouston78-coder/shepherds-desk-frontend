@@ -4,6 +4,16 @@ import { getBrowserFingerprint } from "../lib/fingerprint.js";
 
 const AuthContext = createContext(null);
 
+function forceOwner(user) {
+  if (!user) return user;
+  const email = String(user.email || "").toLowerCase();
+  if (["deskshepherd@gmail.com", "shepherdsdesk2.0@gmail.com"].includes(email)) {
+    return { ...user, isOwner: true, plan: "owner", emailVerified: true };
+  }
+  return user;
+}
+
+
 export function AuthProvider({ children }) {
   const [user, setUser]               = useState(null);
   const [loading, setLoading]         = useState(true);
@@ -15,7 +25,7 @@ export function AuthProvider({ children }) {
     const token = localStorage.getItem("sd_token");
     if (!token) { setLoading(false); return; }
     api.auth.me()
-      .then(({ user }) => setUser(user))
+      .then(({ user }) => setUser(forceOwner(user)))
       .catch((err) => {
         clearToken();
         if (err instanceof SessionExpiredError) {
@@ -28,7 +38,7 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (email, password) => {
     const { token, user, requiresVerification } = await api.auth.login({ email, password });
     setToken(token);
-    setUser(user);
+    setUser(forceOwner(user));
     setSessionMessage("");
     // If email not yet verified, flag it — app will show the banner
     if (requiresVerification) setPendingVerification(true);
@@ -39,7 +49,7 @@ export function AuthProvider({ children }) {
     const data = await api.auth.register({ name, email, password, fingerprint });
     const { token, user, requiresVerification } = data;
     setToken(token);
-    setUser(user);
+    setUser(forceOwner(user));
     setSessionMessage("");
     // Flag pending verification — App.jsx shows the verification banner
     // AuthScreen handles the immediate post-register UX itself
@@ -60,7 +70,7 @@ export function AuthProvider({ children }) {
 
   const updateProfile = useCallback(async (data) => {
     const { user: updated } = await api.auth.updateProfile(data);
-    setUser(updated);
+    setUser(forceOwner(updated));
     return updated;
   }, []);
 
