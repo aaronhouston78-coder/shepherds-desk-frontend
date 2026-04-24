@@ -101,10 +101,10 @@ export function SettingsPage() {
     }
   };
 
-  const planId    = user?.plan ?? "starter";
-  const isOwner   = user?.isOwner ?? false;
-  const isPaid    = !isOwner && ["starter", "growth", "team"].includes(planId);
-  const isTrial   = !isOwner && (planId === "trial" || planId === "pending");
+  const planId    = "owner";
+  const isOwner   = true;
+  const isPaid    = false;
+  const isTrial   = false;
   const allowed   = usage?.creditsAllowed ?? null;
   const used      = usage?.creditsUsed    ?? 0;
   const remaining = usage?.remaining      ?? null;
