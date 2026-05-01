@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../hooks/useAuth.jsx";
 import { api } from "../lib/api.js";
 import { C } from "../lib/tokens.js";
@@ -20,53 +20,142 @@ const PLAN_DESCRIPTIONS = {
   owner:   "Unlimited access · All tools · All features",
 };
 
-const UPGRADE_EMAIL = import.meta.env.VITE_SUPPORT_EMAIL || "hello@shepherdsdesk.app";
-
 const TOOL_LABELS = {
-  "sermon":       "Sermon Builder",
-  "bible-study":  "Bible Study Builder",
-  "announcement": "Announcement Builder",
-  "caption":      "Caption Builder",
-  "follow-up":    "Follow-Up Builder",
+  sermon:       "Sermon Builder",
+  "bible-study":"Bible Study Builder",
+  announcement: "Announcement Builder",
+  caption:      "Caption Builder",
+  "follow-up":  "Follow-Up Builder",
 };
 
 export function SettingsPage() {
   const { user, updateProfile } = useAuth();
+
   const [form, setForm] = useState({
-    name:       user?.name       || "",
+    name:       user?.name || "",
     churchName: user?.churchName || "",
-    role:       user?.role       || "",
+    role:       user?.role || "",
   });
-  const [saving, setSaving]             = useState(false);
-  const [saveSuccess, setSaveSuccess]   = useState(false);
+
+  const [saving, setSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
   const [profileError, setProfileError] = useState("");
 
-  const [usage, setUsage]               = useState(null);
+  const [usage, setUsage] = useState(null);
   const [usageLoading, setUsageLoading] = useState(true);
 
   const [billingLoading, setBillingLoading] = useState("");
-  const [billingError, setBillingError]     = useState("");
+  const [billingError, setBillingError] = useState("");
 
-  useEffect(() => {
+  const [teamLoading, setTeamLoading] = useState(false);
+  const [teamError, setTeamError] = useState("");
+  const [teamSuccess, setTeamSuccess] = useState("");
+  const [workspace, setWorkspace] = useState(null);
+  const [members, setMembers] = useState([]);
+  const [seatLimit, setSeatLimit] = useState(5);
+  const [canManageTeam, setCanManageTeam] = useState(false);
+  const [workspaceName, setWorkspaceName] = useState("");
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState("member");
+  const [creatingWorkspace, setCreatingWorkspace] = useState(false);
+  const [addingMember, setAddingMember] = useState(false);
+  const [removingMemberId, setRemovingMemberId] = useState("");
+
+  const set = (field) => (val) => {
+    setForm((f) => ({ ...f, [field]: val }));
+    setSaveSuccess(false);
+    setProfileError("");
+  };
+
+  const planId = user?.plan ?? "starter";
+  const isOwner = user?.isOwner ?? false;
+  const isPaid = !isOwner && ["starter", "growth", "team"].includes(planId);
+  const isTrial = !isOwner && (planId === "trial" || planId === "pending");
+  const isTeam = !isOwner && planId === "team";
+
+  const allowed = usage?.creditsAllowed ?? null;
+  const used = usage?.creditsUsed ?? 0;
+  const remaining = usage?.remaining ?? null;
+  const pct = allowed && allowed < 999999
+    ? Math.min(100, Math.round((used / allowed) * 100))
+    : 0;
+
+  const activeMemberCount = members.filter((m) => m.status === "active").length;
+
+  const PLANS_FOR_DISPLAY = [
+    { id: "starter", label: "Starter", price: "$19/mo", desc: "40 credits per month. All core tools. Saved outputs. Templates." },
+    { id: "growth",  label: "Growth", price: "$49/mo", desc: "140 credits per month. All tools, templates, and priority support." },
+    { id: "team",    label: "Church Team", price: "$99/mo", desc: "300 credits per month. Built for ministry teams with 5 seats." },
+  ];
+
+  const loadUsage = useCallback(() => {
+    setUsageLoading(true);
     api.generators.getUsage()
       .then(setUsage)
       .catch(() => {})
       .finally(() => setUsageLoading(false));
   }, []);
 
-  const set = (field) => (val) => {
-    setForm(f => ({ ...f, [field]: val }));
-    setSaveSuccess(false);
-    setProfileError("");
-  };
+  const loadTeamWorkspace = useCallback(async () => {
+    if (!isTeam) return;
+    setTeamLoading(true);
+    setTeamError("");
+    try {
+      const data = await api.team.getWorkspace();
+      setWorkspace(data.workspace || null);
+      setMembers(data.members || []);
+      setSeatLimit(data.seatLimit || 5);
+      setCanManageTeam(Boolean(data.canManageTeam));
+      setWorkspaceName(data.workspace?.name || "");
+    } catch (err) {
+      setTeamError(err.message || "Could not load team workspace.");
+    } finally {
+      setTeamLoading(false);
+    }
+  }, [isTeam]);
+
+  useEffect(() => {
+    loadUsage();
+  }, [loadUsage]);
+
+  useEffect(() => {
+    if (user) {
+      setForm({
+        name: user?.name || "",
+        churchName: user?.churchName || "",
+        role: user?.role || "",
+      });
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (isTeam) {
+      loadTeamWorkspace();
+    } else {
+      setWorkspace(null);
+      setMembers([]);
+      setSeatLimit(5);
+      setCanManageTeam(false);
+      setWorkspaceName("");
+    }
+  }, [isTeam, loadTeamWorkspace]);
 
   const handleSave = async () => {
-    if (!form.name.trim()) { setProfileError("Name is required."); return; }
+    if (!form.name.trim()) {
+      setProfileError("Name is required.");
+      return;
+    }
+
     setSaving(true);
     setProfileError("");
     setSaveSuccess(false);
+
     try {
-      await updateProfile({ name: form.name.trim(), church_name: form.churchName, role: form.role });
+      await updateProfile({
+        name: form.name.trim(),
+        church_name: form.churchName,
+        role: form.role,
+      });
       setSaveSuccess(true);
     } catch (err) {
       setProfileError(err.message || "Save failed. Please try again.");
@@ -75,11 +164,11 @@ export function SettingsPage() {
     }
   };
 
-  const handleSubscribe = async (planId) => {
-    setBillingLoading(planId);
+  const handleSubscribe = async (selectedPlanId) => {
+    setBillingLoading(selectedPlanId);
     setBillingError("");
     try {
-      const { url } = await api.billing.checkout(planId);
+      const { url } = await api.billing.checkout(selectedPlanId);
       window.location.href = url;
     } catch (err) {
       setBillingError(err.message || "Could not start checkout. Please try again.");
@@ -99,25 +188,71 @@ export function SettingsPage() {
     }
   };
 
-  const planId    = user?.plan ?? "starter";
-  const isOwner   = user?.isOwner ?? false;
-  const isPaid    = !isOwner && ["starter", "growth", "team"].includes(planId);
-  const isTrial   = !isOwner && (planId === "trial" || planId === "pending");
-  const allowed   = usage?.creditsAllowed ?? null;
-  const used      = usage?.creditsUsed    ?? 0;
-  const remaining = usage?.remaining      ?? null;
-  const pct       = allowed && allowed < 999999
-    ? Math.min(100, Math.round((used / allowed) * 100))
-    : 0;
+  const handleCreateWorkspace = async () => {
+    setCreatingWorkspace(true);
+    setTeamError("");
+    setTeamSuccess("");
+    try {
+      const { workspace: created } = await api.team.createWorkspace({
+        name: workspaceName.trim() || "My Team Workspace",
+      });
+      setWorkspace(created);
+      setWorkspaceName(created?.name || "");
+      setTeamSuccess("Team workspace created.");
+      await loadTeamWorkspace();
+    } catch (err) {
+      setTeamError(err.message || "Could not create team workspace.");
+    } finally {
+      setCreatingWorkspace(false);
+    }
+  };
 
-  const PLANS_FOR_DISPLAY = [
-    { id: "starter", label: "Starter",     price: "$19/mo", desc: "40 credits per month. All core tools. Saved outputs. Templates." },
-    { id: "growth",  label: "Growth",      price: "$49/mo", desc: "140 credits per month. All tools, templates, and priority support." },
-    { id: "team",    label: "Church Team", price: "$99/mo", desc: "300 credits per month. Built for ministry teams with 5 seats." },
-  ];
+  const handleAddMember = async () => {
+    if (!inviteEmail.trim()) {
+      setTeamError("Member email is required.");
+      return;
+    }
+
+    setAddingMember(true);
+    setTeamError("");
+    setTeamSuccess("");
+
+    try {
+      const data = await api.team.addMember({
+        email: inviteEmail.trim(),
+        role: inviteRole,
+      });
+      setMembers(data.members || []);
+      setInviteEmail("");
+      setInviteRole("member");
+      setTeamSuccess("Team member added.");
+      await loadTeamWorkspace();
+    } catch (err) {
+      setTeamError(err.message || "Could not add team member.");
+    } finally {
+      setAddingMember(false);
+    }
+  };
+
+  const handleRemoveMember = async (memberId) => {
+    setRemovingMemberId(memberId);
+    setTeamError("");
+    setTeamSuccess("");
+
+    try {
+      const data = await api.team.removeMember(memberId);
+      setMembers(data.members || []);
+      setTeamSuccess("Team member removed.");
+      await loadTeamWorkspace();
+    } catch (err) {
+      setTeamError(err.message || "Could not remove team member.");
+    } finally {
+      setRemovingMemberId("");
+    }
+  };
 
   return (
-    <div style={{ padding: "40px 48px", maxWidth: 640 }} className="fade-in">
+    <div style={{ padding: "40px 48px", maxWidth: 760 }} className="fade-in">
       <h1 className="serif" style={{ fontSize: 32, fontWeight: 700, color: C.navy, marginBottom: 32 }}>
         Account Settings
       </h1>
@@ -125,13 +260,13 @@ export function SettingsPage() {
       <div className="sd-card" style={{ marginBottom: 20 }}>
         <h2 style={{ fontSize: 15, fontWeight: 600, color: C.navy, marginBottom: 20 }}>Profile</h2>
         <ErrorBanner message={profileError} onDismiss={() => setProfileError("")} />
-        <Field label="Full Name"     id="name"       value={form.name}       onChange={set("name")}       required />
-        <Field label="Email Address" id="email"      value={user?.email||""} onChange={() => {}} />
+        <Field label="Full Name" id="name" value={form.name} onChange={set("name")} required />
+        <Field label="Email Address" id="email" value={user?.email || ""} onChange={() => {}} />
         <p style={{ fontSize: 12, color: C.textMuted, marginTop: -10, marginBottom: 16 }}>
           Email address cannot be changed here.
         </p>
-        <Field label="Church Name"   id="churchName" value={form.churchName} onChange={set("churchName")} placeholder="Your church name" />
-        <Field label="Ministry Role" id="role"       value={form.role}       onChange={set("role")}       placeholder="e.g. Senior Pastor, Youth Director" />
+        <Field label="Church Name" id="churchName" value={form.churchName} onChange={set("churchName")} placeholder="Your church name" />
+        <Field label="Ministry Role" id="role" value={form.role} onChange={set("role")} placeholder="e.g. Senior Pastor, Youth Director" />
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 8 }}>
           <button className="sd-btn-primary" onClick={handleSave} disabled={saving} style={{ padding: "11px 24px" }}>
             {saving ? "Saving..." : "Save Changes"}
@@ -160,13 +295,15 @@ export function SettingsPage() {
               </div>
               {allowed !== null && (
                 <div style={{ background: C.gray200, borderRadius: 100, height: 6, overflow: "hidden" }}>
-                  <div style={{
-                    background:   pct >= 90 ? "#EF4444" : pct >= 70 ? C.gold : C.navy,
-                    width:        `${pct}%`,
-                    height:       "100%",
-                    borderRadius: 100,
-                    transition:   "width 0.4s ease",
-                  }} />
+                  <div
+                    style={{
+                      background: pct >= 90 ? "#EF4444" : pct >= 70 ? C.gold : C.navy,
+                      width: `${pct}%`,
+                      height: "100%",
+                      borderRadius: 100,
+                      transition: "width 0.4s ease",
+                    }}
+                  />
                 </div>
               )}
               <p style={{ fontSize: 12, color: C.textMuted, marginTop: 8 }}>Credits reset on the 1st of each month.</p>
@@ -177,9 +314,21 @@ export function SettingsPage() {
                     Used by Tool
                   </p>
                   {Object.entries(usage.byTool).map(([id, credits]) => (
-                    <div key={id} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: C.text, padding: "4px 0", borderBottom: `1px solid ${C.gray100}` }}>
+                    <div
+                      key={id}
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        fontSize: 13,
+                        color: C.text,
+                        padding: "4px 0",
+                        borderBottom: `1px solid ${C.gray100}`,
+                      }}
+                    >
                       <span>{TOOL_LABELS[id] || id}</span>
-                      <span style={{ color: C.textMuted, fontWeight: 500 }}>{credits} credit{credits !== 1 ? "s" : ""}</span>
+                      <span style={{ color: C.textMuted, fontWeight: 500 }}>
+                        {credits} credit{credits !== 1 ? "s" : ""}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -189,17 +338,195 @@ export function SettingsPage() {
         </div>
       )}
 
+      {isTeam && (
+        <div className="sd-card" style={{ marginBottom: 20 }}>
+          <h2 style={{ fontSize: 15, fontWeight: 600, color: C.navy, marginBottom: 16 }}>Team Workspace</h2>
+
+          <ErrorBanner message={teamError} onDismiss={() => setTeamError("")} />
+          {teamSuccess && (
+            <div
+              style={{
+                marginBottom: 16,
+                background: "#ECFDF3",
+                color: "#166534",
+                border: "1px solid #A7F3D0",
+                borderRadius: 8,
+                padding: "12px 14px",
+                fontSize: 13,
+              }}
+            >
+              {teamSuccess}
+            </div>
+          )}
+
+          {teamLoading ? (
+            <div style={{ height: 48, background: C.gray100, borderRadius: 8, animation: "pulse 1.4s ease-in-out infinite" }} />
+          ) : !workspace ? (
+            <div>
+              <p style={{ fontSize: 14, color: C.text, lineHeight: 1.6, marginBottom: 16 }}>
+                Create your team workspace to begin managing up to {seatLimit} member seats.
+              </p>
+              <Field
+                label="Workspace Name"
+                id="workspaceName"
+                value={workspaceName}
+                onChange={setWorkspaceName}
+                placeholder="e.g. Kingdom Harvest Team"
+              />
+              <button
+                className="sd-btn-primary"
+                onClick={handleCreateWorkspace}
+                disabled={creatingWorkspace}
+                style={{ padding: "11px 24px" }}
+              >
+                {creatingWorkspace ? "Creating..." : "Create Workspace"}
+              </button>
+            </div>
+          ) : (
+            <>
+              <div
+                style={{
+                  background: C.gray100,
+                  border: `1px solid ${C.gray200}`,
+                  borderRadius: 10,
+                  padding: "16px 18px",
+                  marginBottom: 18,
+                }}
+              >
+                <div style={{ fontSize: 16, fontWeight: 700, color: C.navy, marginBottom: 6 }}>
+                  {workspace.name}
+                </div>
+                <div style={{ fontSize: 13, color: C.textMuted }}>
+                  {activeMemberCount} of {seatLimit} seats in use
+                </div>
+              </div>
+
+              {canManageTeam && (
+                <div
+                  style={{
+                    border: `1px solid ${C.gray200}`,
+                    borderRadius: 10,
+                    padding: "16px 18px",
+                    marginBottom: 18,
+                  }}
+                >
+                  <h3 style={{ fontSize: 14, fontWeight: 600, color: C.navy, marginBottom: 14 }}>Add Team Member</h3>
+                  <Field
+                    label="Member Email"
+                    id="inviteEmail"
+                    value={inviteEmail}
+                    onChange={setInviteEmail}
+                    placeholder="Existing Shepherd’s Desk account email"
+                  />
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: C.navy, marginBottom: 8 }}>
+                      Role
+                    </label>
+                    <select
+                      value={inviteRole}
+                      onChange={(e) => setInviteRole(e.target.value)}
+                      style={{
+                        width: "100%",
+                        border: `1px solid ${C.gray200}`,
+                        borderRadius: 8,
+                        padding: "12px 14px",
+                        fontSize: 14,
+                        color: C.text,
+                        background: C.white,
+                      }}
+                    >
+                      <option value="member">Member</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+                  <button
+                    className="sd-btn-primary"
+                    onClick={handleAddMember}
+                    disabled={addingMember || activeMemberCount >= seatLimit}
+                    style={{ padding: "11px 24px" }}
+                  >
+                    {addingMember ? "Adding..." : "Add Member"}
+                  </button>
+                  {activeMemberCount >= seatLimit && (
+                    <p style={{ fontSize: 12, color: "#991B1B", marginTop: 10 }}>
+                      All seats are currently in use.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <div
+                style={{
+                  border: `1px solid ${C.gray200}`,
+                  borderRadius: 10,
+                  padding: "16px 18px",
+                }}
+              >
+                <h3 style={{ fontSize: 14, fontWeight: 600, color: C.navy, marginBottom: 14 }}>Team Members</h3>
+
+                {members.length === 0 ? (
+                  <p style={{ fontSize: 13, color: C.textMuted }}>
+                    No members added yet.
+                  </p>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    {members.map((member) => (
+                      <div
+                        key={member.id}
+                        style={{
+                          border: `1px solid ${C.gray200}`,
+                          borderRadius: 8,
+                          padding: "12px 14px",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          gap: 16,
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>
+                            {member.name || member.email}
+                          </div>
+                          <div style={{ fontSize: 13, color: C.textMuted, marginTop: 2 }}>
+                            {member.email}
+                          </div>
+                          <div style={{ fontSize: 12, color: C.textMuted, marginTop: 6 }}>
+                            {member.role} · {member.status}
+                          </div>
+                        </div>
+
+                        {canManageTeam && (
+                          <button
+                            onClick={() => handleRemoveMember(member.id)}
+                            disabled={removingMemberId === member.id}
+                            className="sd-btn-secondary"
+                            style={{ padding: "9px 16px", fontSize: 13 }}
+                          >
+                            {removingMemberId === member.id ? "Removing..." : "Remove"}
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
       <div className="sd-card">
         <h2 style={{ fontSize: 15, fontWeight: 600, color: C.navy, marginBottom: 16 }}>Plan</h2>
 
-        {billingError && (
-          <ErrorBanner message={billingError} onDismiss={() => setBillingError("")} />
-        )}
+        {billingError && <ErrorBanner message={billingError} onDismiss={() => setBillingError("")} />}
 
         {isOwner && (
           <div style={{ background: C.goldPale, border: `1px solid ${C.gold}`, borderRadius: 8, padding: "14px 16px" }}>
             <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>Owner Account</div>
-            <div style={{ fontSize: 13, color: C.textMuted, marginTop: 4 }}>Unlimited access. All tools. All features. No billing required.</div>
+            <div style={{ fontSize: 13, color: C.textMuted, marginTop: 4 }}>
+              Unlimited access. All tools. All features. No billing required.
+            </div>
           </div>
         )}
 
@@ -209,20 +536,37 @@ export function SettingsPage() {
               Choose a plan to activate your account and get started.
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {PLANS_FOR_DISPLAY.map(plan => (
-                <div key={plan.id} style={{
-                  border: `1px solid ${plan.id === "growth" ? C.gold : C.gray200}`,
-                  borderRadius: 10,
-                  padding: "16px 18px",
-                  display: "flex", alignItems: "center", justifyContent: "space-between",
-                  gap: 16, flexWrap: "wrap",
-                  background: plan.id === "growth" ? C.goldPale : C.white,
-                }}>
+              {PLANS_FOR_DISPLAY.map((plan) => (
+                <div
+                  key={plan.id}
+                  style={{
+                    border: `1px solid ${plan.id === "growth" ? C.gold : C.gray200}`,
+                    borderRadius: 10,
+                    padding: "16px 18px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 16,
+                    flexWrap: "wrap",
+                    background: plan.id === "growth" ? C.goldPale : C.white,
+                  }}
+                >
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <span style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>{plan.label}</span>
                       {plan.id === "growth" && (
-                        <span style={{ fontSize: 11, background: C.gold, color: C.white, borderRadius: 4, padding: "1px 7px", fontWeight: 600 }}>Most Popular</span>
+                        <span
+                          style={{
+                            fontSize: 11,
+                            background: C.gold,
+                            color: C.white,
+                            borderRadius: 4,
+                            padding: "1px 7px",
+                            fontWeight: 600,
+                          }}
+                        >
+                          Most Popular
+                        </span>
                       )}
                     </div>
                     <div style={{ fontSize: 13, color: C.textMuted, marginTop: 3 }}>{plan.desc}</div>
@@ -233,7 +577,11 @@ export function SettingsPage() {
                       onClick={() => handleSubscribe(plan.id)}
                       disabled={!!billingLoading}
                       className="sd-btn-primary"
-                      style={{ padding: "9px 20px", fontSize: 13, opacity: billingLoading && billingLoading !== plan.id ? 0.5 : 1 }}
+                      style={{
+                        padding: "9px 20px",
+                        fontSize: 13,
+                        opacity: billingLoading && billingLoading !== plan.id ? 0.5 : 1,
+                      }}
                     >
                       {billingLoading === plan.id ? "Opening..." : "Subscribe"}
                     </button>
@@ -245,11 +593,19 @@ export function SettingsPage() {
         )}
 
         {isPaid && (
-          <div style={{
-            background: C.goldPale, border: `1px solid ${C.goldLight}`, borderRadius: 8,
-            padding: "14px 16px", display: "flex", alignItems: "center",
-            justifyContent: "space-between", gap: 16, flexWrap: "wrap",
-          }}>
+          <div
+            style={{
+              background: C.goldPale,
+              border: `1px solid ${C.goldLight}`,
+              borderRadius: 8,
+              padding: "14px 16px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 16,
+              flexWrap: "wrap",
+            }}
+          >
             <div>
               <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>
                 {PLAN_LABELS[planId]} Plan
@@ -278,5 +634,3 @@ export function SettingsPage() {
     </div>
   );
 }
-
-
