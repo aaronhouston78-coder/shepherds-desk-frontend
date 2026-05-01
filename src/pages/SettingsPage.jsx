@@ -14,9 +14,9 @@ const PLAN_LABELS = {
 };
 
 const PLAN_DESCRIPTIONS = {
-  starter: "32 credits per month · All core tools · Saved outputs",
-  growth:  "100 credits per month · All tools · Templates · Priority support",
-  team:    "200 credits per month · Full access for ministry teams",
+  starter: "40 credits per month · All core tools · Saved outputs · Templates",
+  growth:  "140 credits per month · All tools · Templates · Priority support",
+  team:    "300 credits per month · Full access for ministry teams · 5 seats",
   owner:   "Unlimited access · All tools · All features",
 };
 
@@ -44,7 +44,7 @@ export function SettingsPage() {
   const [usage, setUsage]               = useState(null);
   const [usageLoading, setUsageLoading] = useState(true);
 
-  const [billingLoading, setBillingLoading] = useState("");   // planId being clicked or "portal"
+  const [billingLoading, setBillingLoading] = useState("");
   const [billingError, setBillingError]     = useState("");
 
   useEffect(() => {
@@ -75,7 +75,6 @@ export function SettingsPage() {
     }
   };
 
-  // Subscribe: creates Stripe Checkout session, redirects browser to Stripe
   const handleSubscribe = async (planId) => {
     setBillingLoading(planId);
     setBillingError("");
@@ -88,7 +87,6 @@ export function SettingsPage() {
     }
   };
 
-  // Portal: opens Stripe Customer Portal for plan changes / cancellation
   const handlePortal = async () => {
     setBillingLoading("portal");
     setBillingError("");
@@ -113,9 +111,9 @@ export function SettingsPage() {
     : 0;
 
   const PLANS_FOR_DISPLAY = [
-    { id: "starter", label: "Starter",      price: "$19/mo", desc: "32 credits per month. All core tools. Saved outputs." },
-    { id: "growth",  label: "Growth",       price: "$49/mo", desc: "100 credits per month. All tools, templates, and priority support." },
-    { id: "team",    label: "Church Team",  price: "$99/mo", desc: "200 credits per month. Built for ministry teams." },
+    { id: "starter", label: "Starter",     price: "$19/mo", desc: "40 credits per month. All core tools. Saved outputs. Templates." },
+    { id: "growth",  label: "Growth",      price: "$49/mo", desc: "140 credits per month. All tools, templates, and priority support." },
+    { id: "team",    label: "Church Team", price: "$99/mo", desc: "300 credits per month. Built for ministry teams with 5 seats." },
   ];
 
   return (
@@ -124,7 +122,6 @@ export function SettingsPage() {
         Account Settings
       </h1>
 
-      {/* PROFILE */}
       <div className="sd-card" style={{ marginBottom: 20 }}>
         <h2 style={{ fontSize: 15, fontWeight: 600, color: C.navy, marginBottom: 20 }}>Profile</h2>
         <ErrorBanner message={profileError} onDismiss={() => setProfileError("")} />
@@ -143,7 +140,6 @@ export function SettingsPage() {
         </div>
       </div>
 
-      {/* CREDITS — paid plans only */}
       {isPaid && (
         <div className="sd-card" style={{ marginBottom: 20 }}>
           <h2 style={{ fontSize: 15, fontWeight: 600, color: C.navy, marginBottom: 16 }}>Credits This Month</h2>
@@ -193,7 +189,6 @@ export function SettingsPage() {
         </div>
       )}
 
-      {/* PLAN / BILLING */}
       <div className="sd-card">
         <h2 style={{ fontSize: 15, fontWeight: 600, color: C.navy, marginBottom: 16 }}>Plan</h2>
 
@@ -201,7 +196,6 @@ export function SettingsPage() {
           <ErrorBanner message={billingError} onDismiss={() => setBillingError("")} />
         )}
 
-        {/* Owner */}
         {isOwner && (
           <div style={{ background: C.goldPale, border: `1px solid ${C.gold}`, borderRadius: 8, padding: "14px 16px" }}>
             <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>Owner Account</div>
@@ -209,7 +203,6 @@ export function SettingsPage() {
           </div>
         )}
 
-        {/* No active plan — show all three plans */}
         {isTrial && (
           <>
             <p style={{ fontSize: 14, color: C.text, marginBottom: 20, lineHeight: 1.6 }}>
@@ -251,7 +244,6 @@ export function SettingsPage() {
           </>
         )}
 
-        {/* Active paid plan */}
         {isPaid && (
           <div style={{
             background: C.goldPale, border: `1px solid ${C.goldLight}`, borderRadius: 8,
@@ -286,3 +278,5 @@ export function SettingsPage() {
     </div>
   );
 }
+
+
