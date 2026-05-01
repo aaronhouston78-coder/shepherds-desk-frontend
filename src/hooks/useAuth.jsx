@@ -5,43 +5,53 @@ import { getBrowserFingerprint } from "../lib/fingerprint.js";
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser]               = useState(null);
-  const [loading, setLoading]         = useState(true);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [sessionMessage, setSessionMessage] = useState("");
   const [pendingVerification, setPendingVerification] = useState(false);
 
+  const refreshMe = useCallback(async () => {
+    const { user } = await api.auth.me();
+    setUser(user);
+    return user;
+  }, []);
+
   useEffect(() => {
     const token = localStorage.getItem("sd_token");
-    if (!token) { setLoading(false); return; }
-    api.auth.me()
-      .then(({ user }) => setUser(user))
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    refreshMe()
       .catch((err) => {
         clearToken();
+        setUser(null);
         if (err instanceof SessionExpiredError) {
           setSessionMessage("Your session expired. Please sign in again.");
         }
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [refreshMe]);
 
   const login = useCallback(async (email, password) => {
-    const { token, user, requiresVerification } = await api.auth.login({ email, password });
+    const { token, requiresVerification } = await api.auth.login({ email, password });
     setToken(token);
-    setUser(user);
     setSessionMessage("");
     if (requiresVerification) setPendingVerification(true);
-  }, []);
+    await refreshMe();
+  }, [refreshMe]);
 
   const register = useCallback(async (name, email, password) => {
     const fingerprint = await getBrowserFingerprint().catch(() => "");
     const data = await api.auth.register({ name, email, password, fingerprint });
-    const { token, user, requiresVerification } = data;
+    const { token, requiresVerification } = data;
     setToken(token);
-    setUser(user);
     setSessionMessage("");
     if (requiresVerification) setPendingVerification(true);
+    await refreshMe();
     return data;
-  }, []);
+  }, [refreshMe]);
 
   const dismissVerification = useCallback(() => {
     setPendingVerification(false);
@@ -65,11 +75,21 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{
-      user, loading, sessionMessage,
-      pendingVerification, dismissVerification,
-      login, register, logout, updateProfile, resendVerification,
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        sessionMessage,
+        pendingVerification,
+        dismissVerification,
+        login,
+        register,
+        logout,
+        updateProfile,
+        resendVerification,
+        refreshMe,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
