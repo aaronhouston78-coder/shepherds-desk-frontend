@@ -338,7 +338,7 @@ export function SettingsPage() {
         </div>
       )}
 
-      {isTeam && (
+      {isTeam && canManageTeam && (
         <div className="sd-card" style={{ marginBottom: 20 }}>
           <h2 style={{ fontSize: 15, fontWeight: 600, color: C.navy, marginBottom: 16 }}>Team Workspace</h2>
 
@@ -411,13 +411,16 @@ export function SettingsPage() {
                   }}
                 >
                   <h3 style={{ fontSize: 14, fontWeight: 600, color: C.navy, marginBottom: 14 }}>Add Team Member</h3>
-                  <Field
+                                    <Field
                     label="Member Email"
                     id="inviteEmail"
                     value={inviteEmail}
                     onChange={setInviteEmail}
                     placeholder="Existing Shepherd’s Desk account email"
                   />
+                  <p style={{ fontSize: 12, color: C.textMuted, marginTop: -10, marginBottom: 16 }}>
+                    Team members must already have a free Shepherd’s Desk account before you add them here.
+                  </p>
                   <div style={{ marginBottom: 16 }}>
                     <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: C.navy, marginBottom: 8 }}>
                       Role
