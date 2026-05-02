@@ -71,34 +71,78 @@ export function Homepage({ onGetStarted, onSubscribe }) {
       </div>
 
       {/* ABOUT */}
-      <div id="about" style={{ background: C.navyDark, padding: "64px 40px", borderBottom: "1px solid rgba(201,168,76,0.12)", scrollMarginTop: 80 }}>
-        <div style={{ maxWidth: 920, margin: "0 auto", textAlign: "center" }}>
+      <div
+        id="about"
+        style={{
+          background: C.navyDark,
+          padding: "56px 40px 64px",
+          textAlign: "center",
+          borderBottom: "1px solid rgba(201,168,76,0.12)",
+          scrollMarginTop: 80,
+        }}
+      >
+        <div style={{ maxWidth: 980, margin: "0 auto" }}>
           <p style={{ color: C.goldLight, fontSize: 12, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 14 }}>
             About Shepherd’s Desk
           </p>
-          <h2 className="serif" style={{ fontSize: 40, fontWeight: 700, color: C.white, lineHeight: 1.18, marginBottom: 20 }}>
+
+          <h2
+            className="serif"
+            style={{
+              fontSize: 42,
+              fontWeight: 700,
+              color: C.white,
+              lineHeight: 1.15,
+              marginBottom: 16,
+            }}
+          >
             Built to help ministry leaders prepare with clarity, structure, and excellence.
           </h2>
-          <p style={{ color: "rgba(255,255,255,0.68)", fontSize: 16, lineHeight: 1.8, maxWidth: 760, margin: "0 auto 18px" }}>
+
+          <p style={{ color: "rgba(255,255,255,0.72)", fontSize: 17, lineHeight: 1.85, maxWidth: 850, margin: "0 auto 18px" }}>
             Shepherd’s Desk is a ministry content and communication platform created for pastors, preachers, teachers, and church teams who carry the weight of preparing messages, teaching lessons, communicating announcements, creating social captions, and following up with people consistently.
           </p>
-          <p style={{ color: "rgba(255,255,255,0.68)", fontSize: 16, lineHeight: 1.8, maxWidth: 760, margin: "0 auto 18px" }}>
+
+          <p style={{ color: "rgba(255,255,255,0.72)", fontSize: 17, lineHeight: 1.85, maxWidth: 850, margin: "0 auto 18px" }}>
             It is designed to help leaders move from a blank page to a stronger starting point. Whether preparing a sermon, building a Bible study, writing church communication, or crafting a pastoral follow-up message, Shepherd’s Desk gives ministry leaders a structured place to organize thoughts, shape language, and produce content with greater focus.
           </p>
-          <p style={{ color: "rgba(255,255,255,0.68)", fontSize: 16, lineHeight: 1.8, maxWidth: 760, margin: "0 auto 18px" }}>
+
+          <p style={{ color: "rgba(255,255,255,0.72)", fontSize: 17, lineHeight: 1.85, maxWidth: 850, margin: "0 auto 18px" }}>
             Shepherd’s Desk is not a replacement for prayer, study, consecration, biblical conviction, or the Holy Spirit. It is a workbench for the shepherd. The burden still belongs to the leader. The calling still requires devotion. The final message still needs the preacher’s voice, discernment, and spiritual responsibility.
           </p>
-          <p style={{ color: "rgba(255,255,255,0.68)", fontSize: 16, lineHeight: 1.8, maxWidth: 760, margin: "0 auto 28px" }}>
-            Shepherd’s Desk is designed to support individuality, not erase it. No two sermons or Bible studies have to sound the same because each result is shaped by your scripture, your topic, your tone, your audience, and your ministry direction. The platform provides structure, organization, and language support, but your voice, discernment, leadership, preparation, and anointing give the final message its personal weight and spiritual distinction.
+
+          <p style={{ color: C.goldLight, fontSize: 17, lineHeight: 1.85, maxWidth: 850, margin: "0 auto 34px", fontWeight: 500 }}>
+            No two sermons, Bible studies, or services will ever be the same. Every message is shaped by your scripture, your burden, your voice, your audience, your leadership, and your anointing. Shepherd’s Desk helps provide structure and support, but the individuality, spiritual weight, and final direction of every message still flows through you.
           </p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14, marginTop: 30 }}>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+              gap: 18,
+              maxWidth: 980,
+              margin: "0 auto",
+            }}
+          >
             {[
               "Prepare sermons with stronger structure.",
               "Build Bible studies with clearer teaching flow.",
               "Create announcements and captions faster.",
-              "Follow up with guests and members more consistently."
+              "Follow up with guests and members more consistently.",
             ].map((item, i) => (
-              <div key={i} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "18px", color: "rgba(255,255,255,0.78)", fontSize: 14, lineHeight: 1.55 }}>
+              <div
+                key={i}
+                style={{
+                  background: "rgba(255,255,255,0.08)",
+                  border: "1px solid rgba(255,255,255,0.16)",
+                  borderRadius: 12,
+                  padding: "22px 18px",
+                  color: C.white,
+                  fontSize: 18,
+                  fontWeight: 600,
+                  lineHeight: 1.45,
+                }}
+              >
                 {item}
               </div>
             ))}
