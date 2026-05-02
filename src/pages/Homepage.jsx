@@ -2,6 +2,11 @@ import { C } from "../lib/tokens.js";
 import { Logo } from "../components/ui.jsx";
 
 export function Homepage({ onGetStarted, onSubscribe }) {
+  const scrollToSection = (id) => {
+    const section = document.getElementById(id);
+    if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   const features = [
     { title: "Sermon Builder", desc: "Generate organized sermon frameworks with scripture, key insights, application points, and altar call language." },
     { title: "Bible Study Builder", desc: "Build structured lesson plans with core teaching points, discussion prompts, and closing reflections." },
@@ -14,19 +19,19 @@ export function Homepage({ onGetStarted, onSubscribe }) {
     {
       name: "Starter", price: "$19", period: "/mo",
       desc: "For solo pastors and teachers.",
-      items: ["Core generators", "Limited generations per month", "Saved outputs"],
+      items: ["25 monthly credits", "Core generators", "Saved outputs"],
       featured: false,
     },
     {
       name: "Growth", price: "$49", period: "/mo",
       desc: "More usage and expanded workflow.",
-      items: ["Everything in Starter", "Saved templates", "Higher usage limits", "Priority support"],
+      items: ["60 monthly credits", "Saved templates", "Higher usage limits", "Priority support"],
       featured: true,
     },
     {
       name: "Church Team", price: "$99", period: "/mo",
       desc: "For multi-user church teams.",
-      items: ["Multiple users", "Team workspace", "Everything in Growth", "Coming soon"],
+      items: ["125 monthly credits", "Up to 3 users", "Team workspace", "Everything in Growth"],
       featured: false,
     },
   ];
@@ -37,9 +42,9 @@ export function Homepage({ onGetStarted, onSubscribe }) {
       <nav style={{ background: C.white, borderBottom: `1px solid ${C.gray200}`, padding: "0 40px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 64, position: "sticky", top: 0, zIndex: 50 }}>
         <Logo />
         <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
-          {["Features", "Pricing", "About"].map(p => (
-            <span key={p} style={{ fontSize: 14, color: C.textMuted, cursor: "pointer" }}>{p}</span>
-          ))}
+          <button onClick={() => scrollToSection("features")} style={{ background: "none", border: "none", fontSize: 14, color: C.textMuted, cursor: "pointer" }}>Features</button>
+          <button onClick={() => scrollToSection("pricing")} style={{ background: "none", border: "none", fontSize: 14, color: C.textMuted, cursor: "pointer" }}>Pricing</button>
+          <button onClick={() => scrollToSection("about")} style={{ background: "none", border: "none", fontSize: 14, color: C.textMuted, cursor: "pointer" }}>About</button>
           <button className="sd-btn-primary" onClick={onGetStarted} style={{ padding: "9px 20px" }}>
             Get Started
           </button>
@@ -60,20 +65,20 @@ export function Homepage({ onGetStarted, onSubscribe }) {
           </p>
           <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
             <button className="sd-btn-gold" onClick={onGetStarted} style={{ padding: "14px 32px", fontSize: 15 }}>Get Started</button>
-            <button className="sd-btn-ghost" style={{ padding: "14px 32px", fontSize: 15, color: C.white, borderColor: "rgba(255,255,255,0.25)" }}>See How It Works</button>
+            <button className="sd-btn-ghost" onClick={() => scrollToSection("features")} style={{ padding: "14px 32px", fontSize: 15, color: C.white, borderColor: "rgba(255,255,255,0.25)" }}>See How It Works</button>
           </div>
         </div>
       </div>
 
       {/* TRUST BAR */}
-      <div style={{ background: C.navyDark, padding: "18px 40px", textAlign: "center", borderBottom: "1px solid rgba(201,168,76,0.12)" }}>
+      <div id="about" style={{ background: C.navyDark, padding: "18px 40px", textAlign: "center", borderBottom: "1px solid rgba(201,168,76,0.12)", scrollMarginTop: 80 }}>
         <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, letterSpacing: "0.06em" }}>
           BUILT FOR PASTORS. DESIGNED FOR EXCELLENCE. NOT A REPLACEMENT FOR PRAYER, STUDY, OR THE HOLY SPIRIT.
         </p>
       </div>
 
       {/* FEATURES */}
-      <div style={{ padding: "80px 40px", maxWidth: 1100, margin: "0 auto" }}>
+      <div id="features" style={{ padding: "80px 40px", maxWidth: 1100, margin: "0 auto", scrollMarginTop: 80 }}>
         <div style={{ textAlign: "center", marginBottom: 56 }}>
           <h2 className="serif" style={{ fontSize: 42, fontWeight: 700, color: C.navy, marginBottom: 12 }}>Five tools. One platform.</h2>
           <p style={{ color: C.textMuted, fontSize: 16, maxWidth: 480, margin: "0 auto" }}>Everything a pastor or ministry leader needs to prepare, communicate, and lead.</p>
@@ -90,11 +95,11 @@ export function Homepage({ onGetStarted, onSubscribe }) {
       </div>
 
       {/* PRICING */}
-      <div style={{ background: C.navy, padding: "80px 40px" }}>
+      <div id="pricing" style={{ background: C.navy, padding: "80px 40px", scrollMarginTop: 80 }}>
         <div style={{ maxWidth: 960, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 48 }}>
             <h2 className="serif" style={{ fontSize: 42, fontWeight: 700, color: C.white, marginBottom: 12 }}>Simple, honest pricing.</h2>
-            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 16 }}>Start free. Scale as your ministry grows.</p>
+            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 16 }}>Choose the monthly credit plan that fits your ministry workflow.</p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 20 }}>
             {plans.map((p, i) => (
