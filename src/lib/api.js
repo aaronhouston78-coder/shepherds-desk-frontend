@@ -70,8 +70,9 @@ export const api = {
   },
 
   billing: {
-    checkout: (planId) => request("/billing/checkout", { method: "POST", body: { planId } }),
-    portal:   ()       => request("/billing/portal", { method: "POST", body: {} }),
+    checkout:       (planId) => request("/billing/checkout", { method: "POST", body: { planId } }),
+    portal:         ()       => request("/billing/portal", { method: "POST", body: {} }),
+    creditCheckout: (packId) => request("/billing/credits/checkout", { method: "POST", body: { packId } }),
   },
 
   generators: {

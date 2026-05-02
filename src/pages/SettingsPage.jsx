@@ -88,6 +88,12 @@ export function SettingsPage() {
     { id: "team",    label: "Church Team", price: "$99/mo", desc: "125 credits per month. Built for ministry teams with 3 seats." },
   ];
 
+  const CREDIT_PACKS = [
+    { id: "boost10", label: "10 Extra Credits", price: "$12", desc: "Best for one extra sermon or a few smaller tools." },
+    { id: "boost20", label: "20 Extra Credits", price: "$22", desc: "Best for a short ministry push before your credits reset." },
+    { id: "boost35", label: "35 Extra Credits", price: "$35", desc: "Best for a heavier month when you need extra sermons, studies, or communication tools." },
+  ];
+
   const loadUsage = useCallback(() => {
     setUsageLoading(true);
     api.generators.getUsage()
@@ -184,6 +190,18 @@ export function SettingsPage() {
       window.location.href = url;
     } catch (err) {
       setBillingError(err.message || "Could not open billing portal. Please try again.");
+      setBillingLoading("");
+    }
+  };
+
+  const handleCreditCheckout = async (packId) => {
+    setBillingLoading(packId);
+    setBillingError("");
+    try {
+      const { url } = await api.billing.creditCheckout(packId);
+      window.location.href = url;
+    } catch (err) {
+      setBillingError(err.message || "Could not start credit checkout. Please try again.");
       setBillingLoading("");
     }
   };
@@ -335,6 +353,47 @@ export function SettingsPage() {
               )}
             </>
           )}
+        </div>
+      )}
+
+      {isPaid && (
+        <div className="sd-card" style={{ marginBottom: 20 }}>
+          <h2 style={{ fontSize: 15, fontWeight: 600, color: C.navy, marginBottom: 10 }}>Need More Credits?</h2>
+          <p style={{ fontSize: 13, color: C.textMuted, lineHeight: 1.6, marginBottom: 18 }}>
+            If you run out before your next billing cycle, you can purchase a one-time credit pack. Add-on credits are designed for occasional extra usage. If you regularly need more credits, upgrading your plan may provide better value.
+          </p>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
+            {CREDIT_PACKS.map((pack) => (
+              <div
+                key={pack.id}
+                style={{
+                  border: `1px solid ${C.gray200}`,
+                  borderRadius: 10,
+                  padding: "16px",
+                  background: C.white,
+                }}
+              >
+                <div style={{ fontSize: 15, fontWeight: 700, color: C.navy, marginBottom: 4 }}>
+                  {pack.label}
+                </div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: C.gold, marginBottom: 8 }}>
+                  {pack.price}
+                </div>
+                <p style={{ fontSize: 12, color: C.textMuted, lineHeight: 1.5, minHeight: 52, marginBottom: 14 }}>
+                  {pack.desc}
+                </p>
+                <button
+                  className="sd-btn-secondary"
+                  onClick={() => handleCreditCheckout(pack.id)}
+                  disabled={billingLoading === pack.id}
+                  style={{ width: "100%", padding: "10px 12px", fontSize: 13 }}
+                >
+                  {billingLoading === pack.id ? "Opening..." : "Buy Credits"}
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
