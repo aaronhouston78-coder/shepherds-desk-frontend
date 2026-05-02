@@ -14,9 +14,9 @@ const PLAN_LABELS = {
 };
 
 const PLAN_DESCRIPTIONS = {
-  starter: "40 credits per month · All core tools · Saved outputs · Templates",
-  growth:  "140 credits per month · All tools · Templates · Priority support",
-  team:    "300 credits per month · Full access for ministry teams · 5 seats",
+  starter: "25 credits per month · All core tools · Saved outputs · Templates",
+  growth:  "60 credits per month · All tools · Templates · Priority support",
+  team:    "125 credits per month · Full access for ministry teams · 3 seats",
   owner:   "Unlimited access · All tools · All features",
 };
 
@@ -83,9 +83,9 @@ export function SettingsPage() {
   const activeMemberCount = members.filter((m) => m.status === "active").length;
 
   const PLANS_FOR_DISPLAY = [
-    { id: "starter", label: "Starter", price: "$19/mo", desc: "40 credits per month. All core tools. Saved outputs. Templates." },
-    { id: "growth",  label: "Growth", price: "$49/mo", desc: "140 credits per month. All tools, templates, and priority support." },
-    { id: "team",    label: "Church Team", price: "$99/mo", desc: "300 credits per month. Built for ministry teams with 5 seats." },
+    { id: "starter", label: "Starter", price: "$19/mo", desc: "25 credits per month. All core tools. Saved outputs. Templates." },
+    { id: "growth",  label: "Growth", price: "$49/mo", desc: "60 credits per month. All tools, templates, and priority support." },
+    { id: "team",    label: "Church Team", price: "$99/mo", desc: "125 credits per month. Built for ministry teams with 3 seats." },
   ];
 
   const loadUsage = useCallback(() => {
