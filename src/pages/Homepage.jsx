@@ -85,8 +85,11 @@ export function Homepage({ onGetStarted, onSubscribe }) {
           <p style={{ color: "rgba(255,255,255,0.68)", fontSize: 16, lineHeight: 1.8, maxWidth: 760, margin: "0 auto 18px" }}>
             It is designed to help leaders move from a blank page to a stronger starting point. Whether preparing a sermon, building a Bible study, writing church communication, or crafting a pastoral follow-up message, Shepherd’s Desk gives ministry leaders a structured place to organize thoughts, shape language, and produce content with greater focus.
           </p>
-          <p style={{ color: "rgba(255,255,255,0.68)", fontSize: 16, lineHeight: 1.8, maxWidth: 760, margin: "0 auto 28px" }}>
+          <p style={{ color: "rgba(255,255,255,0.68)", fontSize: 16, lineHeight: 1.8, maxWidth: 760, margin: "0 auto 18px" }}>
             Shepherd’s Desk is not a replacement for prayer, study, consecration, biblical conviction, or the Holy Spirit. It is a workbench for the shepherd. The burden still belongs to the leader. The calling still requires devotion. The final message still needs the preacher’s voice, discernment, and spiritual responsibility.
+          </p>
+          <p style={{ color: "rgba(255,255,255,0.68)", fontSize: 16, lineHeight: 1.8, maxWidth: 760, margin: "0 auto 28px" }}>
+            Shepherd’s Desk is designed to support individuality, not erase it. No two sermons or Bible studies have to sound the same because each result is shaped by your scripture, your topic, your tone, your audience, and your ministry direction. The platform provides structure, organization, and language support, but your voice, discernment, leadership, preparation, and anointing give the final message its personal weight and spiritual distinction.
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14, marginTop: 30 }}>
             {[
