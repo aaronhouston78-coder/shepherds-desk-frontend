@@ -69,6 +69,7 @@ export const api = {
     login:              (body)  => request("/auth/login", { method: "POST", body }),
     me:                 ()      => request("/auth/me"),
     updateProfile:      (body)  => request("/auth/me", { method: "PATCH", body }),
+    changePassword:     (body)  => request("/auth/change-password", { method: "PATCH", body }),
     verifyEmail:        (token) => request(`/auth/verify-email?token=${encodeURIComponent(token)}`),
     resendVerification: ()      => request("/auth/resend-verification", { method: "POST", body: {} }),
   },
@@ -106,3 +107,4 @@ export function setToken(t) {
 export function clearToken() {
   localStorage.removeItem("sd_token");
 }
+frontend/src/lib/api.js
