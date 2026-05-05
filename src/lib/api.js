@@ -48,9 +48,13 @@ async function request(path, options = {}) {
   const data = await res.json().catch(() => ({}));
 
   if (res.status === 401) {
-    clearToken();
-    throw new SessionExpiredError();
+  if (path === "/auth/login") {
+    throw new ApiError(data.error || "Unable to sign in. Please check your email and password.", 401);
   }
+
+  clearToken();
+  throw new SessionExpiredError();
+}
 
   if (!res.ok) {
     throw new ApiError(data.error || "An unexpected error occurred.", res.status);
