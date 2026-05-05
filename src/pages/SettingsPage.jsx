@@ -41,15 +41,6 @@ export function SettingsPage() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [profileError, setProfileError] = useState("");
 
-  const [passwordForm, setPasswordForm] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
-  const [passwordSaving, setPasswordSaving] = useState(false);
-  const [passwordSuccess, setPasswordSuccess] = useState(false);
-  const [passwordError, setPasswordError] = useState("");
-
   const [usage, setUsage] = useState(null);
   const [usageLoading, setUsageLoading] = useState(true);
 
@@ -179,26 +170,6 @@ export function SettingsPage() {
     }
   };
 
-  const handleChangePassword = async () => {
-    setPasswordSaving(true);
-    setPasswordError("");
-    setPasswordSuccess(false);
-
-    try {
-      await api.auth.changePassword(passwordForm);
-      setPasswordForm({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
-      setPasswordSuccess(true);
-    } catch (err) {
-      setPasswordError(err.message || "Could not change password.");
-    } finally {
-      setPasswordSaving(false);
-    }
-  };
-
   const handleSubscribe = async (selectedPlanId) => {
     setBillingLoading(selectedPlanId);
     setBillingError("");
@@ -319,55 +290,6 @@ export function SettingsPage() {
             {saving ? "Saving..." : "Save Changes"}
           </button>
           {saveSuccess && <span style={{ fontSize: 13, color: "#166534" }}>Changes saved.</span>}
-        </div>
-      </div>
-
-      <div className="sd-card" style={{ marginBottom: 20 }}>
-        <h2 style={{ fontSize: 15, fontWeight: 600, color: C.navy, marginBottom: 20 }}>Change Password</h2>
-
-        <ErrorBanner message={passwordError} onDismiss={() => setPasswordError("")} />
-
-        <Field
-          label="Current Password"
-          id="currentPassword"
-          type="password"
-          value={passwordForm.currentPassword}
-          onChange={(val) => {
-            setPasswordForm((f) => ({ ...f, currentPassword: val }));
-            setPasswordSuccess(false);
-            setPasswordError("");
-          }}
-        />
-
-        <Field
-          label="New Password"
-          id="newPassword"
-          type="password"
-          value={passwordForm.newPassword}
-          onChange={(val) => {
-            setPasswordForm((f) => ({ ...f, newPassword: val }));
-            setPasswordSuccess(false);
-            setPasswordError("");
-          }}
-        />
-
-        <Field
-          label="Confirm New Password"
-          id="confirmPassword"
-          type="password"
-          value={passwordForm.confirmPassword}
-          onChange={(val) => {
-            setPasswordForm((f) => ({ ...f, confirmPassword: val }));
-            setPasswordSuccess(false);
-            setPasswordError("");
-          }}
-        />
-
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 8 }}>
-          <button className="sd-btn-primary" onClick={handleChangePassword} disabled={passwordSaving} style={{ padding: "11px 24px" }}>
-            {passwordSaving ? "Saving..." : "Save Password"}
-          </button>
-          {passwordSuccess && <span style={{ fontSize: 13, color: "#166534" }}>Password changed.</span>}
         </div>
       </div>
 
