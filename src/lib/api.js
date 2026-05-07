@@ -2,7 +2,7 @@
 // Example: https://api.shepherdsdesk.app
 // Do NOT include /api or a trailing slash.
 // Leave unset for local development — Vite proxies /api/* automatically.
-const ORIGIN = "http://localhost:3001";
+const ORIGIN = import.meta.env.VITE_API_ORIGIN || "http://localhost:3001";
 
 function getToken() {
   return localStorage.getItem("sd_token");
