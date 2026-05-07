@@ -74,14 +74,14 @@ export function Dashboard({ onSelectTool }) {
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
           <div>
-            <p style={{ fontSize: 12, color: C.textMuted, marginBottom: 4 }}>Credits Remaining</p>
+            <p style={{ fontSize: 12, color: C.textMuted, marginBottom: 4 }}>Monthly Ministry Allowance</p>
             <p style={{ fontSize: 22, fontWeight: 700, color: C.navy }}>
               {creditsRemaining} of {planLimit}
             </p>
           </div>
 
           <div>
-            <p style={{ fontSize: 12, color: C.textMuted, marginBottom: 4 }}>Credits Used</p>
+            <p style={{ fontSize: 12, color: C.textMuted, marginBottom: 4 }}>Used This Cycle</p>
             <p style={{ fontSize: 22, fontWeight: 700, color: C.navy }}>
               {creditsUsed}
             </p>

@@ -19,19 +19,19 @@ export function Homepage({ onGetStarted, onSubscribe }) {
     {
       name: "Starter", price: "$19", period: "/mo",
       desc: "For solo pastors and teachers.",
-      items: ["25 monthly credits", "Core generators", "Saved outputs"],
+      items: ["Monthly Ministry Allowance: 25", "Core generators", "Saved outputs"],
       featured: false,
     },
     {
       name: "Growth", price: "$49", period: "/mo",
       desc: "More usage and expanded workflow.",
-      items: ["60 monthly credits", "Saved templates", "Higher usage limits", "Priority support"],
+      items: ["Monthly Ministry Allowance: 60", "Saved templates", "Higher usage limits", "Priority support"],
       featured: true,
     },
     {
       name: "Church Team", price: "$99", period: "/mo",
       desc: "For multi-user church teams.",
-      items: ["125 monthly credits", "Up to 3 users", "Team workspace", "Everything in Growth"],
+      items: ["1Monthly Ministry Allowance: 25", "Up to 3 users", "Team workspace", "Everything in Growth"],
       featured: false,
     },
   ];
@@ -172,7 +172,7 @@ export function Homepage({ onGetStarted, onSubscribe }) {
         <div style={{ maxWidth: 960, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 48 }}>
             <h2 className="serif" style={{ fontSize: 42, fontWeight: 700, color: C.white, marginBottom: 12 }}>Simple, honest pricing.</h2>
-            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 16 }}>Choose the monthly credit plan that fits your ministry workflow.</p>
+            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 16 }}>Choose the monthly ministry allowance that fits your church’s preparation and communication needs.</p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 20 }}>
             {plans.map((p, i) => (

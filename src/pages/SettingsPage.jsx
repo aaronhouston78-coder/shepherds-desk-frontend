@@ -14,9 +14,9 @@ const PLAN_LABELS = {
 };
 
 const PLAN_DESCRIPTIONS = {
-  starter: "25 credits per month · All core tools · Saved outputs · Templates",
-  growth:  "60 credits per month · All tools · Templates · Priority support",
-  team:    "125 credits per month · Full access for ministry teams · 3 seats",
+  starter: "Monthly Ministry Allowance: 25 · All core tools · Saved outputs · Templates",
+  growth:  "Monthly Ministry Allowance: 60 · All tools · Templates · Priority support",
+  team:    "Monthly Ministry Allowance: 125 · Full access for ministry teams · 3 seats",
   owner:   "Unlimited access · All tools · All features",
 };
 
@@ -83,15 +83,15 @@ export function SettingsPage() {
   const activeMemberCount = members.filter((m) => m.status === "active").length;
 
   const PLANS_FOR_DISPLAY = [
-    { id: "starter", label: "Starter", price: "$19/mo", desc: "25 credits per month. All core tools. Saved outputs. Templates." },
-    { id: "growth",  label: "Growth", price: "$49/mo", desc: "60 credits per month. All tools, templates, and priority support." },
-    { id: "team",    label: "Church Team", price: "$99/mo", desc: "125 credits per month. Built for ministry teams with 3 seats." },
+    { id: "starter", label: "Starter", price: "$19/mo", desc: "Monthly Ministry Allowance: 25. All core tools. Saved outputs. Templates." },
+    { id: "growth",  label: "Growth", price: "$49/mo", desc: "Monthly Ministry Allowance: 60. All tools, templates, and priority support." },
+    { id: "team",    label: "Church Team", price: "$99/mo", desc: "Monthly Ministry Allowance: 125. Built for ministry teams with 3 seats." },
   ];
 
   const CREDIT_PACKS = [
-    { id: "boost10", label: "10 Extra Credits", price: "$12", desc: "Best for one extra sermon or a few smaller tools." },
-    { id: "boost20", label: "20 Extra Credits", price: "$22", desc: "Best for a short ministry push before your credits reset." },
-    { id: "boost35", label: "35 Extra Credits", price: "$35", desc: "Best for a heavier month when you need extra sermons, studies, or communication tools." },
+    { id: "boost10", label: "10-Point Ministry Boost", price: "$12", desc: "Best for occasional additional preparation before your allowance renews." },
+    { id: "boost20", label: "20-Point Ministry Boost", price: "$22", desc: "Best for a short ministry push before your monthly allowance renews." },
+    { id: "boost35", label: "35-Point Ministry Boost", price: "$35", desc: "Best for a heavier month when your ministry needs additional preparation capacity." },
   ];
 
   const loadUsage = useCallback(() => {
@@ -201,7 +201,7 @@ export function SettingsPage() {
       const { url } = await api.billing.creditCheckout(packId);
       window.location.href = url;
     } catch (err) {
-      setBillingError(err.message || "Could not start credit checkout. Please try again.");
+      setBillingError(err.message || "Could not start ministry boost checkout. Please try again.");
       setBillingLoading("");
     }
   };
@@ -295,7 +295,7 @@ export function SettingsPage() {
 
       {isPaid && (
         <div className="sd-card" style={{ marginBottom: 20 }}>
-          <h2 style={{ fontSize: 15, fontWeight: 600, color: C.navy, marginBottom: 16 }}>Credits This Month</h2>
+          <h2 style={{ fontSize: 15, fontWeight: 600, color: C.navy, marginBottom: 16 }}>Monthly Ministry Allowance</h2>
           {usageLoading ? (
             <div style={{ height: 48, background: C.gray100, borderRadius: 8, animation: "pulse 1.4s ease-in-out infinite" }} />
           ) : (
@@ -304,7 +304,7 @@ export function SettingsPage() {
                 <span style={{ fontSize: 14, color: C.text }}>
                   <strong style={{ fontWeight: 600 }}>{remaining !== null ? remaining : "--"}</strong>
                   <span style={{ color: C.textMuted }}>
-                    {allowed !== null ? ` of ${allowed} credits remaining` : " credits remaining"}
+                    {allowed !== null ? ` of ${allowed} remaining this cycle` : " remaining this cycle"}
                   </span>
                 </span>
                 {allowed !== null && (
@@ -324,33 +324,9 @@ export function SettingsPage() {
                   />
                 </div>
               )}
-              <p style={{ fontSize: 12, color: C.textMuted, marginTop: 8 }}>Credits reset on the 1st of each month.</p>
+              <p style={{ fontSize: 12, color: C.textMuted, marginTop: 8 }}>Your Monthly Ministry Allowance renews each billing cycle.</p>
 
-              {usage?.byTool && Object.keys(usage.byTool).length > 0 && (
-                <div style={{ marginTop: 16, borderTop: `1px solid ${C.gray200}`, paddingTop: 14 }}>
-                  <p style={{ fontSize: 12, fontWeight: 600, color: C.textMuted, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 10 }}>
-                    Used by Tool
-                  </p>
-                  {Object.entries(usage.byTool).map(([id, credits]) => (
-                    <div
-                      key={id}
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        fontSize: 13,
-                        color: C.text,
-                        padding: "4px 0",
-                        borderBottom: `1px solid ${C.gray100}`,
-                      }}
-                    >
-                      <span>{TOOL_LABELS[id] || id}</span>
-                      <span style={{ color: C.textMuted, fontWeight: 500 }}>
-                        {credits} credit{credits !== 1 ? "s" : ""}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
+
             </>
           )}
         </div>
@@ -358,9 +334,9 @@ export function SettingsPage() {
 
       {isPaid && (
         <div className="sd-card" style={{ marginBottom: 20 }}>
-          <h2 style={{ fontSize: 15, fontWeight: 600, color: C.navy, marginBottom: 10 }}>Need More Credits?</h2>
+          <h2 style={{ fontSize: 15, fontWeight: 600, color: C.navy, marginBottom: 10 }}>Need More Ministry Capacity?</h2>
           <p style={{ fontSize: 13, color: C.textMuted, lineHeight: 1.6, marginBottom: 18 }}>
-            If you run out before your next billing cycle, you can purchase a one-time credit pack. Add-on credits are designed for occasional extra usage. If you regularly need more credits, upgrading your plan may provide better value.
+            If you need additional preparation capacity before your allowance renews, you can add a one-time ministry boost. For ongoing ministry needs, upgrading your plan may provide better value.
           </p>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
@@ -389,7 +365,7 @@ export function SettingsPage() {
                   disabled={billingLoading === pack.id}
                   style={{ width: "100%", padding: "10px 12px", fontSize: 13 }}
                 >
-                  {billingLoading === pack.id ? "Opening..." : "Buy Credits"}
+                  {billingLoading === pack.id ? "Opening..." : "Add Boost"}
                 </button>
               </div>
             ))}
