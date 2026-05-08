@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { C } from "../lib/tokens.js";
 import { useAuth } from "../hooks/useAuth.jsx";
+import { api } from "../lib/api.js";
 
 const TOOL_COLORS = {
   sermon: { bg: C.navy, accent: C.gold },
@@ -33,6 +35,13 @@ function formatPlan(plan) {
 
 export function Dashboard({ onSelectTool }) {
   const { user } = useAuth();
+  const [usage, setUsage] = useState(null);
+
+  useEffect(() => {
+    api.generators.getUsage()
+      .then(setUsage)
+      .catch(() => {});
+  }, []);
 
   const greeting = () => {
     const h = new Date().getHours();
@@ -43,8 +52,8 @@ export function Dashboard({ onSelectTool }) {
 
   const plan = user?.plan || "pending";
   const planLimit = user?.creditsPerMonth || PLAN_CREDITS[plan] || 0;
-  const creditsRemaining = user?.creditsRemaining ?? user?.remaining ?? user?.credits ?? planLimit;
-  const creditsUsed = Math.max(planLimit - creditsRemaining, 0);
+  const creditsRemaining = usage?.remaining ?? user?.creditsRemaining ?? user?.remaining ?? user?.credits ?? planLimit;
+  const creditsUsed = usage?.creditsUsed ?? Math.max(planLimit - creditsRemaining, 0);
 
   return (
     <div style={{ padding: "40px 48px", maxWidth: 1000 }} className="fade-in">
