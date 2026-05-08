@@ -43,7 +43,7 @@ export function Dashboard({ onSelectTool }) {
 
   const plan = user?.plan || "pending";
   const planLimit = user?.creditsPerMonth || PLAN_CREDITS[plan] || 0;
-  const creditsRemaining = user?.creditsRemaining ?? user?.credits ?? 0;
+  const creditsRemaining = user?.creditsRemaining ?? user?.remaining ?? user?.credits ?? planLimit;
   const creditsUsed = Math.max(planLimit - creditsRemaining, 0);
 
   return (
