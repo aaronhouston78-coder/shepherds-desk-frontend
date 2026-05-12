@@ -43,6 +43,7 @@ export function SettingsPage() {
 
   const [usage, setUsage] = useState(null);
   const [usageLoading, setUsageLoading] = useState(true);
+  const [showAllowanceGuide, setShowAllowanceGuide] = useState(false);
 
   const [billingLoading, setBillingLoading] = useState("");
   const [billingError, setBillingError] = useState("");
@@ -89,9 +90,8 @@ export function SettingsPage() {
   ];
 
   const CREDIT_PACKS = [
-    { id: "boost10", label: "10-Point Ministry Boost", price: "$12", desc: "Best for occasional additional preparation before your allowance renews." },
-    { id: "boost20", label: "20-Point Ministry Boost", price: "$22", desc: "Best for a short ministry push before your monthly allowance renews." },
-    { id: "boost35", label: "35-Point Ministry Boost", price: "$35", desc: "Best for a heavier month when your ministry needs additional preparation capacity." },
+    { id: "boost5", label: "Boost 5", price: "$7", desc: "Adds 5 allowance units for this billing cycle." },
+    { id: "boost10", label: "Boost 10", price: "$12", desc: "Adds 10 allowance units for this billing cycle." },
   ];
 
   const loadUsage = useCallback(() => {
@@ -324,19 +324,61 @@ export function SettingsPage() {
                   />
                 </div>
               )}
-              <p style={{ fontSize: 12, color: C.textMuted, marginTop: 8 }}>Your Monthly Ministry Allowance renews each billing cycle.</p>
+              <p style={{ fontSize: 12, color: C.textMuted, marginTop: 8 }}>
+                Your allowance renews each billing cycle and is used across Shepherd’s Desk tools.
+              </p>
 
+              <button
+                type="button"
+                onClick={() => setShowAllowanceGuide((open) => !open)}
+                style={{
+                  marginTop: 10,
+                  padding: 0,
+                  border: "none",
+                  background: "transparent",
+                  color: C.navy,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  textDecoration: "underline",
+                }}
+              >
+                How allowance works
+              </button>
+
+              {showAllowanceGuide && (
+                <div
+                  style={{
+                    marginTop: 12,
+                    padding: 12,
+                    border: `1px solid ${C.gray200}`,
+                    borderRadius: 10,
+                    background: C.gray50 || C.white,
+                    fontSize: 12,
+                    color: C.textMuted,
+                    lineHeight: 1.6,
+                  }}
+                >
+                  <div style={{ fontWeight: 700, color: C.navy, marginBottom: 6 }}>Ministry Allowance Guide</div>
+                  <div>Sermon Builder: 7 units</div>
+                  <div>Sermon Series Builder: 7 units</div>
+                  <div>Bible Study Builder: 5 units</div>
+                  <div>Announcement Builder: 3 units</div>
+                  <div>Caption Builder: 3 units</div>
+                  <div>Follow-Up Builder: 3 units</div>
+                </div>
+              )}
 
             </>
           )}
         </div>
       )}
 
-      {isPaid && (
+      {isPaid && remaining !== null && remaining <= 6 && (
         <div className="sd-card" style={{ marginBottom: 20 }}>
-          <h2 style={{ fontSize: 15, fontWeight: 600, color: C.navy, marginBottom: 10 }}>Need More Ministry Capacity?</h2>
+          <h2 style={{ fontSize: 15, fontWeight: 600, color: C.navy, marginBottom: 10 }}>Add Ministry Boost</h2>
           <p style={{ fontSize: 13, color: C.textMuted, lineHeight: 1.6, marginBottom: 18 }}>
-            If you need additional preparation capacity before your allowance renews, you can add a one-time ministry boost. For ongoing ministry needs, upgrading your plan may provide better value.
+            Need to continue before your allowance renews? Add more allowance units for this billing cycle.
           </p>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
