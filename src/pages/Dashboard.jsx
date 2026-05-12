@@ -52,6 +52,7 @@ export function Dashboard({ onSelectTool }) {
   };
 
   const plan = user?.plan || "pending";
+  const isOwner = plan === "owner" || user?.isOwner;
   const planLimit = user?.creditsPerMonth || PLAN_CREDITS[plan] || 0;
   const creditsRemaining = usage?.remaining ?? user?.creditsRemaining ?? user?.remaining ?? user?.credits ?? planLimit;
   const creditsUsed = usage?.creditsUsed ?? Math.max(planLimit - creditsRemaining, 0);
@@ -86,7 +87,7 @@ export function Dashboard({ onSelectTool }) {
           <div>
             <p style={{ fontSize: 12, color: C.textMuted, marginBottom: 4 }}>Monthly Ministry Allowance</p>
             <p style={{ fontSize: 22, fontWeight: 700, color: C.navy }}>
-              {creditsRemaining} of {planLimit}
+              {isOwner ? "Unlimited" : `${creditsRemaining} of ${planLimit}`}
             </p>
           </div>
 
