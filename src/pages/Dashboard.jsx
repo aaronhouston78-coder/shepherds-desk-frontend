@@ -36,6 +36,7 @@ function formatPlan(plan) {
 export function Dashboard({ onSelectTool }) {
   const { user } = useAuth();
   const [usage, setUsage] = useState(null);
+  const [showAllowanceGuide, setShowAllowanceGuide] = useState(false);
 
   useEffect(() => {
     api.generators.getUsage()
@@ -96,6 +97,51 @@ export function Dashboard({ onSelectTool }) {
             </p>
           </div>
         </div>
+
+        <p style={{ fontSize: 12, color: C.textMuted, marginTop: 14, marginBottom: 0 }}>
+          Your allowance renews each billing cycle and is used across Shepherd’s Desk tools.
+        </p>
+
+        <button
+          type="button"
+          onClick={() => setShowAllowanceGuide((open) => !open)}
+          style={{
+            marginTop: 10,
+            padding: 0,
+            border: "none",
+            background: "transparent",
+            color: C.navy,
+            fontSize: 12,
+            fontWeight: 700,
+            cursor: "pointer",
+            textDecoration: "underline",
+          }}
+        >
+          How allowance works
+        </button>
+
+        {showAllowanceGuide && (
+          <div
+            style={{
+              marginTop: 12,
+              padding: 12,
+              border: `1px solid ${C.gray200}`,
+              borderRadius: 10,
+              background: C.white,
+              fontSize: 12,
+              color: C.textMuted,
+              lineHeight: 1.6,
+            }}
+          >
+            <div style={{ fontWeight: 700, color: C.navy, marginBottom: 6 }}>Ministry Allowance Guide</div>
+            <div>Sermon Builder: 7 units</div>
+            <div>Sermon Series Builder: 7 units</div>
+            <div>Bible Study Builder: 5 units</div>
+            <div>Announcement Builder: 3 units</div>
+            <div>Caption Builder: 3 units</div>
+            <div>Follow-Up Builder: 3 units</div>
+          </div>
+        )}
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
